@@ -12,7 +12,20 @@
 (defn handler [request]
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body "<h1>Hello World!</h1>"})
+   :body "<h1>Hello there world</h1>"})
+
+;; app is just a function that takes a request map, and returns a response map
+(def app
+  (-> #'handler ;; passing functions as a Var, allows us to change the function dynamically 
+      (ring.middleware.stacktrace/wrap-stacktrace) ;; send back exception in HTML
+      ;(wrap-spy)
+      ))
+
+(defonce server (ring.adapter.jetty/run-jetty #'app {:port 8080 :join? false}))
+
+;;(.stop server)
+
+;;(.start server)
 
 (defn wrap-spy [handler]
   (fn [request]
@@ -24,13 +37,4 @@
       (clojure.pprint/pprint response)
       (println "-------------------------------")
       response)))
-
-;; app is just a function that takes a request map, and returns a response map
-(def app
-  (-> #'handler ;; passing functions as a Var, allows us to change the function dynamically 
-      (ring.middleware.stacktrace/wrap-stacktrace) ;; send back exception in HTML
-      ;(wrap-spy)
-      ))
-
-(defonce server (ring.adapter.jetty/run-jetty #'app {:port 8080 :join? false}))
 
